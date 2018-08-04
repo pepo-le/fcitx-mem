@@ -25,6 +25,10 @@ if has("unix")
         set imstatusfunc=ImStatus
     else
         function! InsLeave()
+            if !exists('b:input_toggle')
+                return
+            endif
+
             let s:input_status = system("fcitx-remote")
             if s:input_status == 2
                 let l:a = system("fcitx-remote -c")
@@ -33,6 +37,10 @@ if has("unix")
         endfunction
 
         function! InsEnter()
+            if !exists('b:input_toggle')
+                return
+            endif
+
             let s:input_status = system("fcitx-remote")
             if s:input_status != 2 && b:input_toggle == 1
                 let l:a = system("fcitx-remote -o")
@@ -40,10 +48,12 @@ if has("unix")
             endif
         endfunction
 
-        autocmd BufWinEnter * let b:input_toggle = 0
-
-        autocmd InsertEnter * call InsEnter()
-        autocmd InsertLeave * call InsLeave()
+        augroup FcitxMem
+            autocmd!
+            autocmd BufWinEnter * let b:input_toggle = 0
+            autocmd InsertEnter * call InsEnter()
+            autocmd InsertLeave * call InsLeave()
+        augroup END
     endif
 endif
 
